@@ -3,8 +3,25 @@ import secrets
 from flask import Flask
 from dotenv import load_dotenv
 
+from app.response import Response
+
 # Creating Flask app
 app = Flask(__name__)
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    """
+    Error handler for unhandled exceptions in the Flask app.
+
+    Parameters:
+        error (Exception): The unhandled exception object.
+
+    Returns:
+        tuple: A JSON body in the error response format in the 'Response' class.
+    """
+    error_message = str(error)
+    response = Response(error_message, 401)
+    return response.return_error_response()
 
 def create_app():
     """
