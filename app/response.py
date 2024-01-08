@@ -24,7 +24,7 @@ class Response:
             status_code (int): The HTTP status code for the error.
 
         Returns:
-            tuple: A tuple containing the JSON error response and the appropriate HTTP status code.
+            tuple: A tuple containing the JSON error response and the appropriate HTTP status code.            
         """
         response = {
             'error': {
