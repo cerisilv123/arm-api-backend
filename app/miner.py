@@ -1,7 +1,9 @@
+import pyfpgrowth
+
 from efficient_apriori import apriori
 
 class Miner:
-    def __init__(self, algorithm, data, support_threshold, confidence_threshold, min_length=1, max_length=8):
+    def __init__(self, algorithm, data, support_threshold, confidence_threshold):
         """
         Constructor method to initialise a Miner object that can be used for mining association
         rules. 
@@ -19,8 +21,6 @@ class Miner:
         self.data=data #2d list containing transactional data
         self.support_threshold=support_threshold
         self.confidence_threshold=confidence_threshold
-        self.min_length=min_length
-        self.max_length=max_length
 
     def mine_association_rules(self):
         if self.algorithm == 'apriori':
@@ -46,34 +46,10 @@ class Miner:
         itemsets, rules = apriori(self.data, min_support=self.support_threshold,  min_confidence=self.confidence_threshold)
         
         # Need to ensure 'itemset' python dict returned by apriori()function is JSON conpatible by jsonify() function
-        itemsets_json_compatible = {}
-        for key, value in itemsets.items():
-            new_dict = {}
-            for itemset, count in value.items():
-                # Join the tuple elements with a comma to create a string key instead of tuple which is returned by default by apriori()
-                itemset_key = ','.join(itemset)
-                new_dict[itemset_key] = count
-            itemsets_json_compatible[key] = new_dict
+        itemsets_json_compatible = self.convert_itemsets_to_json_compatible(itemsets)
         
         # Convert rule results to python dict that is JSON compatible by jsonify() function
-        rule_results = []
-        for rule in rules: 
-            confidence = rule.confidence
-            support = rule.support
-            lift = rule.lift
-            conviction = rule.conviction
-
-            result = {
-                "rule": str(rule), # Rule will be in the format Beer -> Wine. If Beer is bought, then it is likely that Wine is also bought.
-                "lhs": rule.lhs, # Antecedent (IF part of the rule) = Beer in the above case
-                "rhs": rule.rhs, # Consequent (THEN part of the rule) = Wine in the above case
-                "confidence": confidence, 
-                "support": support, # how often the items occur in the rule together in the set of data. Higher support = relevant
-                "lift": lift, # Shows strength of association. Lift < 1 = B is less likely to be bought with A, Lift > 1 = B more likely to be bought with A, Lift of 1 = independent
-                "conviction": conviction # Measure of strength of rule being incorrect. the < conviction = more chance of incorrect. 1 = no association
-            }
-
-            rule_results.append(result)
+        rule_results = self.convert_rules_to_json_format(itemsets, rules)
         
         result = {
             "itemsets": itemsets_json_compatible, 
@@ -83,18 +59,100 @@ class Miner:
         return result
     
     def mine_fpgrowth(self):
-        pass
+        itemsets = pyfpgrowth.find_frequent_patterns(self.data, self.support_threshold)
+        rules = pyfpgrowth.generate_association_rules(itemsets, self.confidence_threshold)
+
+        # Convert rule results to python dict that is JSON compatible by jsonify() function
+        rule_results = self.convert_rules_to_json_format(itemsets, rules)
+
+        # Need to ensure 'itemset' python dict returned by frpgrowth()function is JSON conpatible by jsonify() function
+        itemsets_json_compatible = self.convert_itemsets_to_json_compatible(itemsets)
+
+        result = {
+            "itemsets": itemsets_json_compatible, 
+            "rules": rule_results
+        }
+
+        return result
+    
+    def convert_itemsets_to_json_compatible(self, itemsets): 
+        itemsets_json_compatible = {}
+
+        if self.algorithm == 'apriori': 
+            for key, value in itemsets.items():
+                new_dict = {}
+                for itemset, count in value.items():
+                    # Join the tuple elements with a comma to create a string key instead of tuple which is returned by default by apriori()
+                    itemset_key = ','.join(itemset)
+                    new_dict[itemset_key] = count
+                itemsets_json_compatible[key] = new_dict
+        elif self.algorithm == 'fpgrowth': 
+            new_dict = {}
+            for key, value in itemsets.items():
+                # Join the tuple elements with a comma to create a string key instead of tuple which is returned by default by apriori()
+                itemset_key = ','.join(key)
+                new_dict[itemset_key] = value
+            itemsets_json_compatible = new_dict
+
+        return itemsets_json_compatible
+    
+    def convert_rules_to_json_format(self, itemsets, rules):
+        rule_results = []
+
+        if self.algorithm == 'apriori': 
+            for rule in rules: 
+                confidence = rule.confidence
+                support = rule.support
+                lift = rule.lift
+                conviction = rule.conviction
+
+                result = {
+                    "rule": str(rule), # Rule will be in the format Beer -> Wine. If Beer is bought, then it is likely that Wine is also bought.
+                    "lhs": rule.lhs, # Antecedent (IF part of the rule) = Beer in the above case
+                    "rhs": rule.rhs, # Consequent (THEN part of the rule) = Wine in the above case
+                    "confidence": confidence, 
+                    "support": support, # how often the items occur in the rule together in the set of data. Higher support = relevant
+                    "lift": lift, # Shows strength of association. Lift < 1 = B is less likely to be bought with A, Lift > 1 = B more likely to be bought with A, Lift of 1 = independent
+                    "conviction": conviction # Measure of strength of rule being incorrect. the < conviction = more chance of incorrect. 1 = no association
+                }
+
+                rule_results.append(result)
+                
+        elif self.algorithm == 'fpgrowth':
+            for lhs, (rhs, confidence) in rules.items():
+                # Calculate support for the rule (you might need to adjust this calculation based on your specific needs)
+                lhs_support = itemsets.get(lhs, 0)
+                rhs_support = itemsets.get(rhs, 0)
+                rule_support = min(lhs_support, rhs_support) # This is a simplification, adjust as needed
+
+                # Convert tuple to list 
+                lhs_list = list(lhs)
+                rhs_list = []
+                if isinstance(rhs, tuple):
+                    rhs_list = list(rhs) 
+                else:
+                    rhs_list = [rhs]
+
+                # Creating the rule string so it follows the same format as other algorithms
+                rule_str = f"{{{', '.join(lhs_list)}}} -> {{{', '.join(rhs_list)}}} (conf: {confidence:.3f}, supp: {rule_support:.3f})"
+
+                rule_dict = {
+                    "confidence": confidence,
+                    "lhs": lhs_list,
+                    "rhs": rhs_list,
+                    "rule": rule_str,
+                    "support": rule_support
+                }
+
+                rule_results.append(rule_dict)
+
+        return rule_results
 
     def calculate_lift(rule):
-        lift = rule.support / (rule.lhs_support * rule.rhs_support)
-        return lift
+        pass
 
     def calculate_conviction(self, rule): 
-        if rule.confidence == 1: 
-            return -1
-        else: 
-            conviction = (1 - rule.rhs_support) / (1 - rule.confidence)
-            return conviction
+        pass
 
 
 
