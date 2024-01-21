@@ -23,6 +23,19 @@ class Miner:
         self.confidence_threshold=confidence_threshold
 
     def mine_association_rules(self):
+        """
+        Method that checks the algorithm attribute and calls the correct method to mine
+        association rules. 
+
+        Parameters:
+            None
+
+        Returns:
+            None
+
+        Error handling: 
+            Raises a ValueError if algorithm not specified correctly on object creation. 
+        """
         if self.algorithm == 'apriori':
             self.mine_apriori()
         elif self.algorithm == 'fpgrowth': 
@@ -38,7 +51,6 @@ class Miner:
 
         Parameters:
             data (class attribute)
-            data (list, optional): Additional data to be included in the response (default is an empty list).
 
         Returns:
             tuple: A tuple containing the JSON success response and the HTTP status code 200.
@@ -59,6 +71,16 @@ class Miner:
         return result
     
     def mine_fpgrowth(self):
+        """
+        Method to mine association rules using the 'fpgrowth' algorithm. The method uses the data attribute
+        along with metrics and returns a python dictionary containing the itemsets and rule results.
+
+        Parameters:
+            data (class attribute)
+
+        Returns:
+            tuple: A tuple containing the JSON success response and the HTTP status code 200.
+        """
         itemsets = pyfpgrowth.find_frequent_patterns(self.data, self.support_threshold)
         rules = pyfpgrowth.generate_association_rules(itemsets, self.confidence_threshold)
 
@@ -67,6 +89,7 @@ class Miner:
 
         # Need to ensure 'itemset' python dict returned by frpgrowth()function is JSON conpatible by jsonify() function
         itemsets_json_compatible = self.convert_itemsets_to_json_compatible(itemsets)
+
 
         result = {
             "itemsets": itemsets_json_compatible, 
@@ -135,24 +158,69 @@ class Miner:
 
                 # Creating the rule string so it follows the same format as other algorithms
                 rule_str = f"{{{', '.join(lhs_list)}}} -> {{{', '.join(rhs_list)}}} (conf: {confidence:.3f}, supp: {rule_support:.3f})"
+                
+                print(confidence)
+                print(rhs_support)
+
+                # Calculating conviction and lift metrics
+                #lift = self.calculate_lift(confidence, rhs_support)
+                #conviction = self.calculate_conviction(confidence, rhs_support)
 
                 rule_dict = {
                     "confidence": confidence,
                     "lhs": lhs_list,
                     "rhs": rhs_list,
                     "rule": rule_str,
-                    "support": rule_support
+                    "support": rule_support,
+                    #"lift": lift,
+                    #"conviction": conviction
                 }
 
                 rule_results.append(rule_dict)
 
         return rule_results
 
-    def calculate_lift(rule):
+    def calculate_lift(self, confidence, rhs_support):
+        """
+        Function to calculate the key metric 'lift'. The function takes in as parameters:
+        confidence (A -> B) and the rhs_support (B) to perform the calculation. The function
+        returns the lift value. Lift shows strength of association. Lift < 1 = B is less 
+        likely to be bought with A, Lift > 1 = B more likely to be bought with A, Lift of 1 = independent
+
+        Parameters:
+            confidence (double)
+            rhs_support (double)
+
+        Returns:
+            double: The calculated 'lift' value. 
+
+        Formula: 
+            lift(A -> B) = confidence(A -> B) / rhs_support(B)
+        """
+        return confidence/rhs_support
+
+    def calculate_conviction(self, confidence, rhs_support): 
+        """
+        Function to calculate the key metric 'conviction'. The function takes in as parameters:
+        confidence (A -> B) and the rhs_support (B) to perform the calculation. The function
+        returns the conviction value. Conviction # Measure of strength of rule being incorrect. 
+        the < conviction = more chance of incorrect. 1 = no association
+
+        Parameters:
+            confidence (double)
+            rhs_support (double)
+
+        Returns:
+            double: The calculated 'conviction' value. 
+
+        Formula: 
+            conviction(A -> B) = (1 - rhs_support(B)) / (1 - confidence(A -> B))
+        """
+        return (1 - rhs_support) / (1 - confidence)
+    
+    def calculate_lhs_and_rhs_support(self, itemsets, lhs, rhs): 
         pass
 
-    def calculate_conviction(self, rule): 
-        pass
 
 
 
