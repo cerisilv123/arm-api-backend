@@ -121,6 +121,7 @@ class Miner:
     
     def convert_rules_to_json_format(self, itemsets, rules):
         rule_results = []
+        print(rules.items())
 
         if self.algorithm == 'apriori': 
             for rule in rules: 
@@ -144,6 +145,7 @@ class Miner:
         elif self.algorithm == 'fpgrowth':
             for lhs, (rhs, confidence) in rules.items():
                 # Calculate support for the rule (you might need to adjust this calculation based on your specific needs)
+                support, lhs_support, rhs_support = self.calculate_lhs_and_rhs_support(itemsets, lhs, rhs)
                 lhs_support = itemsets.get(lhs, 0)
                 rhs_support = itemsets.get(rhs, 0)
                 rule_support = min(lhs_support, rhs_support) # This is a simplification, adjust as needed
@@ -219,8 +221,37 @@ class Miner:
         return (1 - rhs_support) / (1 - confidence)
     
     def calculate_lhs_and_rhs_support(self, itemsets, lhs, rhs): 
-        pass
+        support = 0
+        lhs_support = 0
+        rhs_support = 0
+    
+        # Calculating total number of transactions first
+        number_of_transactions = 0
 
+        for itemset in itemsets: 
+            number_of_transactions += itemsets[itemset]
+
+        # combining lhs and rhs to unique set. This is used for calculating 'support'
+        lhs_set = set(lhs.split(","))
+        rhs_set = set(rhs.split(","))
+        set_combined = lhs_set.union(rhs_set)
+        itemset_combined = ",".join(set_combined)
+
+        # Calculating item support metric for lhs & rhs combined, lhs and rhs
+        for itemset in itemsets: 
+            if set_combined == itemset: 
+                support = itemsets[itemset] / number_of_transactions
+            if lhs == itemset: 
+                lhs_support = itemsets[itemset] / number_of_transactions
+            if rhs == itemset: 
+                rhs_support = itemsets[itemset] / number_of_transactions
+            if lhs_support != 0 and rhs_support != 0: 
+                break
+
+        return support, lhs_support, rhs_support
+
+        
+            
 
 
 
