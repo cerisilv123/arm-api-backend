@@ -121,7 +121,6 @@ class Miner:
     
     def convert_rules_to_json_format(self, itemsets, rules):
         rule_results = []
-        print(rules.items())
 
         if self.algorithm == 'apriori': 
             for rule in rules: 
@@ -146,9 +145,6 @@ class Miner:
             for lhs, (rhs, confidence) in rules.items():
                 # Calculate support for the rule (you might need to adjust this calculation based on your specific needs)
                 support, lhs_support, rhs_support = self.calculate_lhs_and_rhs_support(itemsets, lhs, rhs)
-                lhs_support = itemsets.get(lhs, 0)
-                rhs_support = itemsets.get(rhs, 0)
-                rule_support = min(lhs_support, rhs_support) # This is a simplification, adjust as needed
 
                 # Convert tuple to list 
                 lhs_list = list(lhs)
@@ -156,26 +152,23 @@ class Miner:
                 if isinstance(rhs, tuple):
                     rhs_list = list(rhs) 
                 else:
-                    rhs_list = [rhs]
-
-                # Creating the rule string so it follows the same format as other algorithms
-                rule_str = f"{{{', '.join(lhs_list)}}} -> {{{', '.join(rhs_list)}}} (conf: {confidence:.3f}, supp: {rule_support:.3f})"
-                
-                print(confidence)
-                print(rhs_support)
+                    rhs_list = [rhs]                
 
                 # Calculating conviction and lift metrics
-                #lift = self.calculate_lift(confidence, rhs_support)
-                #conviction = self.calculate_conviction(confidence, rhs_support)
+                lift = self.calculate_lift(confidence, rhs_support)
+                conviction = self.calculate_conviction(confidence, rhs_support)
+
+                # Creating the rule string so it follows the same format as other algorithms
+                rule_str = f"{{{', '.join(lhs_list)}}} -> {{{', '.join(rhs_list)}}} (conf: {confidence:.3f}, supp: {support:.3f}, lift: {lift:.3f}, conv: {conviction:.3f})"
 
                 rule_dict = {
                     "confidence": confidence,
                     "lhs": lhs_list,
                     "rhs": rhs_list,
                     "rule": rule_str,
-                    "support": rule_support,
-                    #"lift": lift,
-                    #"conviction": conviction
+                    "support": support,
+                    "lift": lift,
+                    "conviction": conviction
                 }
 
                 rule_results.append(rule_dict)
@@ -199,7 +192,10 @@ class Miner:
         Formula: 
             lift(A -> B) = confidence(A -> B) / rhs_support(B)
         """
-        return confidence/rhs_support
+        if confidence == 0 or rhs_support == 0: 
+            return 0
+        else: 
+            return confidence/rhs_support
 
     def calculate_conviction(self, confidence, rhs_support): 
         """
@@ -218,13 +214,12 @@ class Miner:
         Formula: 
             conviction(A -> B) = (1 - rhs_support(B)) / (1 - confidence(A -> B))
         """
-        return (1 - rhs_support) / (1 - confidence)
+        if 1 - confidence == 0: 
+            return 0
+        else: 
+            return (1 - rhs_support) / (1 - confidence)
     
-    def calculate_lhs_and_rhs_support(self, itemsets, lhs, rhs): 
-        support = 0
-        lhs_support = 0
-        rhs_support = 0
-    
+    def calculate_lhs_and_rhs_support(self, itemsets, lhs, rhs):     
         # Calculating total number of transactions first
         number_of_transactions = 0
 
@@ -232,21 +227,26 @@ class Miner:
             number_of_transactions += itemsets[itemset]
 
         # combining lhs and rhs to unique set. This is used for calculating 'support'
-        lhs_set = set(lhs.split(","))
-        rhs_set = set(rhs.split(","))
-        set_combined = lhs_set.union(rhs_set)
-        itemset_combined = ",".join(set_combined)
+        set_lhs = set(lhs)
+        set_rhs = set(rhs)
+        set_union = set_lhs.union(set_rhs)
 
         # Calculating item support metric for lhs & rhs combined, lhs and rhs
+        support_count = 0
+        lhs_count = 0
+        rhs_count = 0
         for itemset in itemsets: 
-            if set_combined == itemset: 
-                support = itemsets[itemset] / number_of_transactions
-            if lhs == itemset: 
-                lhs_support = itemsets[itemset] / number_of_transactions
-            if rhs == itemset: 
-                rhs_support = itemsets[itemset] / number_of_transactions
-            if lhs_support != 0 and rhs_support != 0: 
-                break
+            set_itemset = set(itemset)
+            if set_union.issubset(set_itemset): 
+                support_count += itemsets[itemset]
+            if set_lhs.issubset(set_itemset): 
+                lhs_count += itemsets[itemset]
+            if set_rhs.issubset(set_itemset): 
+                rhs_count += itemsets[itemset]
+
+        support = support_count / number_of_transactions
+        lhs_support = lhs_count / number_of_transactions
+        rhs_support = rhs_count / number_of_transactions
 
         return support, lhs_support, rhs_support
 
