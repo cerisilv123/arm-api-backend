@@ -56,7 +56,7 @@ class Miner:
             tuple: A tuple containing the JSON success response and the HTTP status code 200.
         """
         itemsets, rules = apriori(self.data, min_support=self.support_threshold,  min_confidence=self.confidence_threshold)
-        
+
         # Need to ensure 'itemset' python dict returned by apriori()function is JSON conpatible by jsonify() function
         itemsets_json_compatible = self.convert_itemsets_to_json_compatible(itemsets)
         
@@ -81,7 +81,8 @@ class Miner:
         Returns:
             tuple: A tuple containing the JSON success response and the HTTP status code 200.
         """
-        itemsets = pyfpgrowth.find_frequent_patterns(self.data, self.support_threshold)
+        support_threshold_fpgrowth = self.support_threshold * 10
+        itemsets = pyfpgrowth.find_frequent_patterns(self.data, support_threshold_fpgrowth)
         rules = pyfpgrowth.generate_association_rules(itemsets, self.confidence_threshold)
 
         # Convert rule results to python dict that is JSON compatible by jsonify() function
@@ -155,7 +156,7 @@ class Miner:
                     rhs_list = [rhs]                
 
                 # Calculating conviction and lift metrics
-                lift = self.calculate_lift(confidence, rhs_support)
+                lift = self.calculate_lift(confidence, lhs_support, rhs_support)
                 conviction = self.calculate_conviction(confidence, rhs_support)
 
                 # Creating the rule string so it follows the same format as other algorithms
@@ -175,7 +176,7 @@ class Miner:
 
         return rule_results
 
-    def calculate_lift(self, confidence, rhs_support):
+    def calculate_lift(self, confidence, lhs_support, rhs_support):
         """
         Function to calculate the key metric 'lift'. The function takes in as parameters:
         confidence (A -> B) and the rhs_support (B) to perform the calculation. The function
@@ -190,12 +191,12 @@ class Miner:
             double: The calculated 'lift' value. 
 
         Formula: 
-            lift(A -> B) = confidence(A -> B) / rhs_support(B)
+            lift(A -> B) = support (A -> B) / (lhs_support * rhs_support)
         """
-        if confidence == 0 or rhs_support == 0: 
+        if confidence == 0 or rhs_support == 0 or lhs_support == 0: 
             return 0
         else: 
-            return confidence/rhs_support
+            return confidence / (lhs_support * rhs_support)
 
     def calculate_conviction(self, confidence, rhs_support): 
         """
@@ -221,15 +222,10 @@ class Miner:
     
     def calculate_lhs_and_rhs_support(self, itemsets, lhs, rhs):     
         # Calculating total number of transactions first
-        number_of_transactions = 0
+        number_of_transactions = len(self.data)
 
-        for itemset in itemsets: 
-            number_of_transactions += itemsets[itemset]
-
-        # combining lhs and rhs to unique set. This is used for calculating 'support'
-        set_lhs = set(lhs)
-        set_rhs = set(rhs)
-        set_union = set_lhs.union(set_rhs)
+        # combining lhs and rhs to tuple. This is used for calculating 'support'
+        set_union = set(lhs + rhs)
 
         # Calculating item support metric for lhs & rhs combined, lhs and rhs
         support_count = 0
@@ -237,12 +233,14 @@ class Miner:
         rhs_count = 0
         for itemset in itemsets: 
             set_itemset = set(itemset)
-            if set_union.issubset(set_itemset): 
+            if set_union == set_itemset: 
                 support_count += itemsets[itemset]
-            if set_lhs.issubset(set_itemset): 
+            if lhs == itemset: 
                 lhs_count += itemsets[itemset]
-            if set_rhs.issubset(set_itemset): 
+            if rhs == itemset: 
                 rhs_count += itemsets[itemset]
+
+        print(f"Number of transactions: {number_of_transactions}")
 
         support = support_count / number_of_transactions
         lhs_support = lhs_count / number_of_transactions

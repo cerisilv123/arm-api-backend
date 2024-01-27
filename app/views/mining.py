@@ -23,7 +23,7 @@ def mine():
         algorithm='fpgrowth',
         data=transactions,
         support_threshold=0.2,
-        confidence_threshold=0.5,
+        confidence_threshold=0.8,
     )
 
     result = miner.mine_fpgrowth()
@@ -32,7 +32,7 @@ def mine():
         algorithm='apriori',
         data=transactions,
         support_threshold=0.2,
-        confidence_threshold=0.5,
+        confidence_threshold=0.8,
     )
 
     result = miner.mine_apriori()'''
