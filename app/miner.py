@@ -304,7 +304,7 @@ class Miner:
 
         Example: 
             result = miner.calculate_conviction(0.8, 0.6)
-            print(result) // 2.0
+            print(result) // 2.00000000
         """
         if 1 - confidence == 0: 
             return float('inf') 
