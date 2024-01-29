@@ -145,7 +145,7 @@ class Miner:
         elif self.algorithm == 'fpgrowth':
             for lhs, (rhs, confidence) in rules.items():
                 # Calculate support for the rule (you might need to adjust this calculation based on your specific needs)
-                support, lhs_support, rhs_support = self.calculate_lhs_and_rhs_support(itemsets, lhs, rhs)
+                support, lhs_support, rhs_support = self.calculate_support_values(itemsets, lhs, rhs)
 
                 # Convert tuple to list 
                 lhs_list = list(lhs)
@@ -223,7 +223,7 @@ class Miner:
         else: 
             return (1 - rhs_support) / (1 - confidence)
     
-    def calculate_lhs_and_rhs_support(self, itemsets, lhs, rhs):     
+    def calculate_support_values(self, itemsets, lhs, rhs):     
         # Calculating total number of transactions first
         number_of_transactions = len(self.data)
 
