@@ -156,7 +156,7 @@ class Miner:
                     rhs_list = [rhs]                
 
                 # Calculating conviction and lift metrics
-                lift = self.calculate_lift(confidence, lhs_support, rhs_support)
+                lift = self.calculate_lift(support, lhs_support, rhs_support)
                 conviction = self.calculate_conviction(confidence, rhs_support)
 
                 # Creating the rule string so it follows the same format as other algorithms
@@ -176,7 +176,7 @@ class Miner:
 
         return rule_results
 
-    def calculate_lift(self, confidence, lhs_support, rhs_support):
+    def calculate_lift(self, support, lhs_support, rhs_support):
         """
         Function to calculate the key metric 'lift'. The function takes in as parameters:
         confidence (A -> B) and the rhs_support (B) to perform the calculation. The function
@@ -191,19 +191,22 @@ class Miner:
             double: The calculated 'lift' value. 
 
         Formula: 
-            lift(A -> B) = support (A -> B) / (lhs_support * rhs_support)
+            lift(A -> B) = support(A -> B) / (support(A) * support(B))
         """
-        if confidence == 0 or rhs_support == 0 or lhs_support == 0: 
+        if support == 0 or rhs_support == 0 or lhs_support == 0: 
             return 0
         else: 
-            return confidence / (lhs_support * rhs_support)
+            return support / (lhs_support * rhs_support)
 
     def calculate_conviction(self, confidence, rhs_support): 
         """
         Function to calculate the key metric 'conviction'. The function takes in as parameters:
-        confidence (A -> B) and the rhs_support (B) to perform the calculation. The function
+        confidence(A -> B) and the rhs_support(B) to perform the calculation. The function
         returns the conviction value. Conviction # Measure of strength of rule being incorrect. 
-        the < conviction = more chance of incorrect. 1 = no association
+        the < conviction = more chance of incorrect. 1 = no association. It is important to note
+        the method returns a positive infinity value if the confidence is 1. This is because a 
+        confidence of 1 implies that the rule has perfect confidence. ie the RHS is always purchased 
+        in a transaction when the LHS is purchased.
 
         Parameters:
             confidence (double)
@@ -216,7 +219,7 @@ class Miner:
             conviction(A -> B) = (1 - rhs_support(B)) / (1 - confidence(A -> B))
         """
         if 1 - confidence == 0: 
-            return 0
+            return float('inf') 
         else: 
             return (1 - rhs_support) / (1 - confidence)
     
@@ -239,8 +242,6 @@ class Miner:
                 lhs_count += itemsets[itemset]
             if rhs == itemset: 
                 rhs_count += itemsets[itemset]
-
-        print(f"Number of transactions: {number_of_transactions}")
 
         support = support_count / number_of_transactions
         lhs_support = lhs_count / number_of_transactions
