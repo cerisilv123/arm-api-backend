@@ -2,11 +2,13 @@ import pyfpgrowth
 
 from efficient_apriori import apriori
 
+from app.apriori_ceri import AprioriCeri
+
 class Miner:
-    def __init__(self, algorithm, data, support_threshold, confidence_threshold):
+    def __init__(self, algorithm, data, support_threshold, confidence_threshold=0.8):
         """
         Constructor method to initialise a Miner object that can be used for mining association
-        rules. 
+        rules. sets a default confidence of 0.8 is none is supplied.
 
         Parameters:
             algorithm (str): algorithm to mine association rules ie. Apriori or FP-Growth. 
@@ -61,6 +63,8 @@ class Miner:
             self.mine_apriori()
         elif self.algorithm == 'fpgrowth': 
             self.mine_fpgrowth()
+        elif self.algorithm == 'apriori-ceri':
+            self.mine_apriori_ceri()
         else:
             raise ValueError("Algorithm not specified correctly.")
 
@@ -139,6 +143,18 @@ class Miner:
         result = {
             "itemsets": itemsets_json_compatible, 
             "rules": rule_results
+        }
+
+        return result
+    
+    def mine_apriori_ceri(self):
+
+        apriori_ceri = AprioriCeri(self.data, self.support_threshold)
+        itemsets = apriori_ceri.mine()
+
+        result = {
+            "itemsets": itemsets, 
+            "rules": []
         }
 
         return result

@@ -19,14 +19,14 @@ def mine():
         ['Butter', 'Bread']
     ]
 
-    miner = Miner(
+    '''miner = Miner(
         algorithm='fpgrowth',
         data=transactions,
         support_threshold=0.2,
         confidence_threshold=0.8,
     )
 
-    result = miner.mine_fpgrowth()
+    result = miner.mine_association_rules()'''
 
     '''miner = Miner(
         algorithm='apriori',
@@ -36,6 +36,14 @@ def mine():
     )
 
     result = miner.mine_apriori()'''
+
+    miner = Miner(
+        algorithm='apiori-ceri', 
+        data=transactions, 
+        support_threshold=0.2
+    )
+
+    result = miner.mine_apriori_ceri()
 
     response_obj = Response("Test message response", data=result)
     return response_obj.return_success_response()

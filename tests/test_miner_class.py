@@ -62,7 +62,7 @@ class TestMinerClass(unittest.TestCase):
         # Testing number of rules returned
         self.assertEqual(len(result['rules']), 7)
 
-    '''def test_mine_apriori(self):
+    def test_mine_apriori(self):
         result = self.miner_apriori.mine_apriori()
         
         # Testing data types are correct
@@ -89,7 +89,7 @@ class TestMinerClass(unittest.TestCase):
         self.assertNotEqual(result['rules'][2]['confidence'], 0.83333)
 
         # Testing number of rules returned
-        self.assertEqual(len(result['rules']), 10)'''
+        self.assertEqual(len(result['rules']), 10)
 
     def test_calculate_support_values(self):
         itemsets = {
@@ -133,4 +133,6 @@ class TestMinerClass(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
 
