@@ -149,12 +149,19 @@ class Miner:
     
     def mine_apriori_ceri(self):
 
-        apriori_ceri = AprioriCeri(self.data, self.support_threshold)
+        apriori_ceri = AprioriCeri(self.data, self.support_threshold, self.confidence_threshold)
         itemsets = apriori_ceri.mine()
+        rules = pyfpgrowth.generate_association_rules(itemsets, self.confidence_threshold)
+
+        # Convert rule results to python dict that is JSON compatible by jsonify() function
+        rule_results = self.convert_rules_to_json_format(itemsets, rules)
+
+        # Need to ensure 'itemset' python dict returned by mine() function is JSON compatible by jsonify() function
+        itemsets_json_compatible = self.convert_itemsets_to_json_compatible(itemsets)
 
         result = {
-            "itemsets": itemsets, 
-            "rules": []
+            "itemsets": itemsets_json_compatible, 
+            "rules": rules
         }
 
         return result
@@ -191,9 +198,12 @@ class Miner:
                 itemset_key = ','.join(key)
                 new_dict[itemset_key] = value
             itemsets_json_compatible = new_dict
-
-        #elif self.algorithm == 'apriori-ceri':
-
+        elif self.algorithm == 'apriori-ceri':
+            new_dict = {}
+            for key, value in itemsets.items():
+                itemset_key = ', '.join(sorted(key))
+                new_dict[itemset_key] = value
+            itemsets_json_compatible = new_dict
 
         return itemsets_json_compatible
     

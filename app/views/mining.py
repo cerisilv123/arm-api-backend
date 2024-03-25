@@ -38,9 +38,10 @@ def mine():
     result = miner.mine_apriori()'''
 
     miner = Miner(
-        algorithm='apiori-ceri', 
+        algorithm='apriori-ceri', 
         data=transactions, 
-        support_threshold=0.2
+        support_threshold=2, 
+        confidence_threshold=0.8
     )
 
     result = miner.mine_apriori_ceri()

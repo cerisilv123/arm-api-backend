@@ -1,8 +1,9 @@
 
 class AprioriCeri:
-    def __init__(self, transactions, support_threshold):
+    def __init__(self, transactions, support_threshold, confidence_threshold):
         self.transactions = transactions
         self.support_threshold = support_threshold
+        self.confidence_threshold = confidence_threshold
     
     def mine(self):
         frontier_itemsets_candidates = self.get_initial_frontier_itemsets_candidates(self.transactions)
@@ -108,3 +109,8 @@ class AprioriCeri:
         itemsets_count = self.count_itemsets(itemsets_large)
 
         return itemsets_count
+    
+    def generate_rules(self, itemsets_count):
+        pass
+
+
