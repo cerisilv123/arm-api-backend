@@ -8,6 +8,31 @@ class AprioriCeri:
         frontier_itemsets_candidates = self.get_initial_frontier_itemsets_candidates(self.transactions)
         itemsets_large = self.get_itemsets_large(self.transactions, self.support_threshold, frontier_itemsets_candidates)
         return itemsets_large
+    
+    def count_itemsets(self, itemsets_large):
+        """
+        method that counts the number of times an itemset occurs in the transaction attribute. 
+        The itemset becomes the key in the dictionary and the value becomes the 'count'.
+
+        Parameters:
+            transactions (class attribute)
+            itemsets_large (list)
+
+        Returns:
+            results (dict): containing 'itemset' and 'count' produced by the method.
+        """
+        # Initialising itemsets with a default count of 0
+        itemset_count = {}
+        for itemset in itemsets_large:
+            itemset_count[itemset] = 0
+
+        # loop through each itemset and count number of times it occurs in transaction
+        for transaction in self.transactions:
+            for itemset in itemsets_large:
+                if itemset.issubset(transaction):
+                    itemset_count[itemset] += 1
+
+        return itemset_count      
 
     """ 
     Function initialises itemset candidates set (frontier set).
@@ -80,4 +105,6 @@ class AprioriCeri:
             # Get new frontier set on each scan. When None is returned the loop is ended and algorithm complete. 
             frontier_itemsets_candidates = self.get_frontier_itemsets_candidates(frontier_itemsets_candidates)
         
-        return itemsets_large
+        itemsets_count = self.count_itemsets(itemsets_large)
+
+        return itemsets_count

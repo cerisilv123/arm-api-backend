@@ -192,6 +192,9 @@ class Miner:
                 new_dict[itemset_key] = value
             itemsets_json_compatible = new_dict
 
+        #elif self.algorithm == 'apriori-ceri':
+
+
         return itemsets_json_compatible
     
     def convert_rules_to_json_format(self, itemsets, rules):
