@@ -170,7 +170,8 @@ class Miner:
         Returns:
             results(dict): containing 'itemsets' and 'rules' produced by the apriori-ceri mining process.
         """
-        apriori_ceri = AprioriCeri(self.data, self.support_threshold, self.confidence_threshold)
+        support_threshold_apriori_ceri = self.support_threshold * 10
+        apriori_ceri = AprioriCeri(self.data, support_threshold_apriori_ceri, self.confidence_threshold)
         itemsets = apriori_ceri.mine()
         rules = pyfpgrowth.generate_association_rules(itemsets, self.confidence_threshold)
 
@@ -205,13 +206,13 @@ class Miner:
         itemsets_json_compatible = {}
 
         if self.algorithm == 'apriori': 
+            new_dict = {}
             for key, value in itemsets.items():
-                new_dict = {}
                 for itemset, count in value.items():
                     # Join the tuple elements with a comma to create a string key instead of tuple which is returned by default by apriori()
                     itemset_key = ','.join(itemset)
                     new_dict[itemset_key] = count
-                itemsets_json_compatible[key] = new_dict
+            itemsets_json_compatible = new_dict
         elif self.algorithm == 'fpgrowth': 
             new_dict = {}
             for key, value in itemsets.items():

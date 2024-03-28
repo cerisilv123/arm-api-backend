@@ -26,25 +26,25 @@ def mine():
         confidence_threshold=0.8,
     )
 
-    result = miner.mine_association_rules()'''
+    result = miner.mine_fpgrowth()'''
 
-    '''miner = Miner(
+    miner = Miner(
         algorithm='apriori',
         data=transactions,
         support_threshold=0.2,
         confidence_threshold=0.8,
     )
 
-    result = miner.mine_apriori()'''
+    result = miner.mine_apriori()
 
-    miner = Miner(
+    '''miner = Miner(
         algorithm='apriori-ceri', 
         data=transactions, 
-        support_threshold=2, 
+        support_threshold=0.2, 
         confidence_threshold=0.8
     )
 
-    result = miner.mine_apriori_ceri()
+    result = miner.mine_apriori_ceri()'''
 
     response_obj = Response("Test message response", data=result)
     return response_obj.return_success_response()
