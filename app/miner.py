@@ -148,7 +148,28 @@ class Miner:
         return result
     
     def mine_apriori_ceri(self):
+        """
+        Method to mine association rules using the 'apriori-ceri' algorithm which is a customer class. 
+        The function utilises the data, support_threshold and confidence threshold class attributes. The method 
+        returns a python dictionary containing the itemsets and rule results calculated by 
+        the fpgrowth algorithm.
 
+        Parameters:
+            data (class attribute)
+            support_threshold (class attribute)
+            confidence_threshold (class attribute)
+
+        Methods: 
+            self.convert_itemsets_to_json_compatible(itemsets)
+            self.convert_rules_to_json_format(itemsets, rules)
+        
+        External functions: 
+            generate_association_rules() from 'pyfpgrowth' library. This is used to generate
+            rules using the itemsets returned by apriori-ceri.
+
+        Returns:
+            results(dict): containing 'itemsets' and 'rules' produced by the apriori-ceri mining process.
+        """
         apriori_ceri = AprioriCeri(self.data, self.support_threshold, self.confidence_threshold)
         itemsets = apriori_ceri.mine()
         rules = pyfpgrowth.generate_association_rules(itemsets, self.confidence_threshold)
@@ -161,7 +182,7 @@ class Miner:
 
         result = {
             "itemsets": itemsets_json_compatible, 
-            "rules": rules
+            "rules": rule_results
         }
 
         return result
@@ -250,7 +271,7 @@ class Miner:
 
                 rule_results.append(result)
                 
-        elif self.algorithm == 'fpgrowth':
+        elif self.algorithm == 'fpgrowth' or self.algorithm == 'apriori-ceri':
             for lhs, (rhs, confidence) in rules.items():
                 # Calculate support for the rule (you might need to adjust this calculation based on your specific needs)
                 support, lhs_support, rhs_support = self.calculate_support_values(itemsets, lhs, rhs)

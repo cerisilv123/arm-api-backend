@@ -6,6 +6,18 @@ class AprioriCeri:
         self.confidence_threshold = confidence_threshold
     
     def mine(self):
+        """
+        method that calls multiple methods to manage the association rule mining process
+        to retreive itemsets from the transactions attribute. 
+
+        Parameters:
+            transactions (class attribute)
+            support_threshold (class attribute)
+            confidence_threshold (class attribute)
+
+        Returns:
+            results (dict): containing the itemsets mined.
+        """
         frontier_itemsets_candidates = self.get_initial_frontier_itemsets_candidates(self.transactions)
         itemsets_large = self.get_itemsets_large(self.transactions, self.support_threshold, frontier_itemsets_candidates)
         return itemsets_large
@@ -108,9 +120,13 @@ class AprioriCeri:
         
         itemsets_count = self.count_itemsets(itemsets_large)
 
-        return itemsets_count
-    
-    def generate_rules(self, itemsets_count):
-        pass
+        # Formatting correctly - converting from frozensets to tuples
+        itemsets_count_updated = {}
+        for key, value in itemsets_count.items(): 
+            temp_key = tuple(sorted(key))
+            itemsets_count_updated[temp_key] = value 
+
+        return itemsets_count_updated
+
 
 
