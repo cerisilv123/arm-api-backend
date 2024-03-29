@@ -5,7 +5,7 @@ from app.views.auth import preflight_check
 
 mining = Blueprint('mining', __name__)
 
-@mining.route('/mine', methods=["POST"])
+@mining.route('/mine', methods=["POST", "OPTIONS"])
 @preflight_check
 def mine():
     """
