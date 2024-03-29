@@ -60,11 +60,11 @@ class Miner:
             Raises a ValueError if algorithm not specified correctly on object creation. 
         """
         if self.algorithm == 'apriori':
-            self.mine_apriori()
+            return self.mine_apriori()
         elif self.algorithm == 'fpgrowth': 
-            self.mine_fpgrowth()
+            return self.mine_fpgrowth()
         elif self.algorithm == 'apriori-ceri':
-            self.mine_apriori_ceri()
+            return self.mine_apriori_ceri()
         else:
             raise ValueError("Algorithm not specified correctly.")
 
