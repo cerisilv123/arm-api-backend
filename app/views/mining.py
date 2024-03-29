@@ -1,12 +1,10 @@
 from flask import Blueprint, request
 from app.response import Response
 from app.miner import Miner
-from app.views.auth import preflight_check
 
 mining = Blueprint('mining', __name__)
 
-@mining.route('/mine', methods=["POST", "OPTIONS"])
-@preflight_check
+@mining.route('/mine', methods=["POST"])
 def mine():
     """
     Returns association rule mining results for a transactional data set.

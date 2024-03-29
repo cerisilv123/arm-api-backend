@@ -1,12 +1,14 @@
 import sys
 import secrets
 from flask import Flask
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 from app.response import Response
 
 # Creating Flask app
 app = Flask(__name__)
+CORS(app) # Allow for cross-origin requests
 
 @app.errorhandler(Exception)
 def handle_exception(error):
