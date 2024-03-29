@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, make_response
 from functools import wraps
 
 # Decorator function to check for cross-origin requests
@@ -24,7 +24,10 @@ def preflight_check(f):
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization, Refresh-Token',
                 "Access-Control-Allow-Credentials": True
             }
-            return ('', 204, headers)
+            response = make_response('', 204)
+            for header, value in headers.items():
+                response.headers[header] = value
+            return response
         else:
             # For non-OPTIONS requests, call the original function
             return f(*args, **kwargs)
