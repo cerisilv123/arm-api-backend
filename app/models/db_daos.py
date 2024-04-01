@@ -12,6 +12,7 @@ class Result(db.Model):
 
     # Relationships
     itemsets = db.relationship('Itemset', backref='result', lazy=True)
+    rules = db.relationship('Rule', backref='result', lazy=True)
 
 class Itemset(db.Model):
     __tablename__ = 'itemset'

@@ -1,13 +1,16 @@
 from flask import Blueprint, request
+from app import db
 from app.response import Response
 from app.miner import Miner
+from app.models.db_daos import Result, Itemset, Rule, LHS, RHS
 
 mining = Blueprint('mining', __name__)
 
 @mining.route('/mine', methods=["POST"])
 def mine():
     """
-    Returns association rule mining results for a transactional data set.
+    Returns association rule mining results for a transactional data set and saves data set to
+    database.
 
     Request:
     - HttpRequest (JSON): JSON object containing details such as list of transactions, algorithm specified, 
@@ -58,8 +61,56 @@ def mine():
         confidence_threshold=data["confidence_threshold"],
     )
 
-    result = miner.mine_association_rules()
+    mine_results = miner.mine_association_rules()
+
+    data = mine_results
+    itemsets = data["itemsets"]
+    rules = data["rules"]
+
+    # Begin a new SQLAlchemy transaction and adding result to DB
+    with db.session.begin():
+
+        result = Result(
+            count = 10,
+        )
+        db.session.add(result)
+        
+        # Itemsets
+        for key, value in itemsets.items():
+            itemset = Itemset(
+              items = key, 
+              count = value, 
+              result = result, # Setting foreign key 
+            )
+            db.session.add(itemset)
+
+        # Rules
+        for r in rules:               
+            rule = Rule(
+                confidence = r["confidence"], 
+                conviction = r["conviction"], 
+                lift = r["lift"], 
+                support = r["support"],
+                rule = r["rule"],
+                result = result,
+            )
+            db.session.add(rule)
+
+            for x in r["rhs"]:
+                rhs = RHS(
+                    item = x,
+                    rule = rule,
+                )
+                db.session.add(rhs)
+
+
+            for x in r["lhs"]:
+                lhs = LHS(
+                    item = x,
+                    rule = rule,
+                )
+                db.session.add(lhs)
     
     # Returning JSON body with results from request
-    response_obj = Response("Data mined successfully!", data=result)
+    response_obj = Response("Data mined successfully!", data=mine_results)
     return response_obj.return_success_response()
