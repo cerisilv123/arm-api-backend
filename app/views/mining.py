@@ -130,3 +130,18 @@ def read_result(id):
     
     response_obj = Response("Result retrieved successfully!", data=result.to_dict())
     return response_obj.return_success_response()
+
+@mining.route('/result/<string:id>', methods=["DELETE"])
+def delete_result(id):
+
+    # Check if result exists in DB based on id
+    result = Result.query.filter_by(id=id).first()
+    if not result: 
+        response_obj_err = Response("Could not find result based on that id.")
+        return response_obj_err.return_error_response()
+    
+    db.session.delete(result)
+    db.session.commit()
+    
+    response_obj = Response("Result deleted successfully!")
+    return response_obj.return_success_response()

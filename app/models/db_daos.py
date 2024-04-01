@@ -11,8 +11,8 @@ class Result(db.Model):
     count = db.Column(db.Integer, nullable=False, default=1) 
 
     # Relationships
-    itemsets = db.relationship('Itemset', backref='result', lazy=True)
-    rules = db.relationship('Rule', backref='result', lazy=True)
+    itemsets = db.relationship('Itemset', backref='result', lazy=True, cascade="all, delete-orphan")
+    rules = db.relationship('Rule', backref='result', lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self): 
         # Convert each LHS object to a dictionary and add it to the lhs list
@@ -58,8 +58,8 @@ class Rule(db.Model):
     # Relationships
     result_id = db.Column(db.Integer, db.ForeignKey('result.id'), nullable=False)
 
-    lhs = db.relationship('LHS', backref='rule', lazy=True)
-    rhs = db.relationship('RHS', backref='rule', lazy=True)
+    lhs = db.relationship('LHS', backref='rule', lazy=True, cascade="all, delete-orphan")
+    rhs = db.relationship('RHS', backref='rule', lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
         # Convert each LHS object to a dictionary and add it to the lhs list
