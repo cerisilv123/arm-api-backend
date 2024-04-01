@@ -14,6 +14,20 @@ class Result(db.Model):
     itemsets = db.relationship('Itemset', backref='result', lazy=True)
     rules = db.relationship('Rule', backref='result', lazy=True)
 
+    def to_dict(self): 
+        # Convert each LHS object to a dictionary and add it to the lhs list
+        itemsets_list = [item.to_dict() for item in self.itemsets]
+        
+        # Convert each RHS object to a dictionary and add it to the rhs list
+        rules_list = [item.to_dict() for item in self.rules]
+
+        return {
+            'id': self.id, 
+            'count': self.count, 
+            'itemsets': itemsets_list, 
+            'rules': rules_list,
+        }
+
 class Itemset(db.Model):
     __tablename__ = 'itemset'
 
@@ -23,6 +37,13 @@ class Itemset(db.Model):
 
     # Relationships
     result_id = db.Column(db.Integer, db.ForeignKey('result.id'), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id, 
+            'items': self.items, 
+            'count': self.count, 
+        }
 
 class Rule(db.Model):
     __tablename__ = 'rule'
@@ -40,6 +61,24 @@ class Rule(db.Model):
     lhs = db.relationship('LHS', backref='rule', lazy=True)
     rhs = db.relationship('RHS', backref='rule', lazy=True)
 
+    def to_dict(self):
+        # Convert each LHS object to a dictionary and add it to the lhs list
+        lhs_list = [item.to_dict() for item in self.lhs]
+        
+        # Convert each RHS object to a dictionary and add it to the rhs list
+        rhs_list = [item.to_dict() for item in self.rhs]
+
+        return {
+            'id': self.id, 
+            'confidence': self.confidence, 
+            'conviction': self.conviction, 
+            'lift': self.lift, 
+            'support': self.support, 
+            'rule': self.rule, 
+            'lhs': lhs_list, 
+            'rhs': rhs_list
+        }
+
 class LHS(db.Model):
     __tablename__ = 'lhs'
 
@@ -49,6 +88,12 @@ class LHS(db.Model):
     # Relationships
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'), nullable=False)
 
+    def to_dict(self):
+        return {
+            'id': self.id, 
+            'item': self.item,
+        }
+
 class RHS(db.Model):
     __tablename__ = 'rhs'
 
@@ -57,6 +102,12 @@ class RHS(db.Model):
 
     # Relationships
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id, 
+            'item': self.item,
+        }
 
 
 

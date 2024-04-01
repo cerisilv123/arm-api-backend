@@ -67,6 +67,8 @@ def mine():
     itemsets = data["itemsets"]
     rules = data["rules"]
 
+    result_obj = ''
+
     # Begin a new SQLAlchemy transaction and adding result to DB
     with db.session.begin():
 
@@ -110,7 +112,21 @@ def mine():
                     rule = rule,
                 )
                 db.session.add(lhs)
+
+        result_obj = result
     
     # Returning JSON body with results from request
-    response_obj = Response("Data mined successfully!", data=mine_results)
+    response_obj = Response("Data mined successfully!", data=result_obj.to_dict())
+    return response_obj.return_success_response()
+
+@mining.route('/result/<string:id>', methods=["GET"])
+def read_result(id):
+
+    # Check if result exists in DB based on id
+    result = Result.query.filter_by(id=id).first()
+    if not result: 
+        response_obj_err = Response("Could not find result based on that id.")
+        return response_obj_err.return_error_response()
+    
+    response_obj = Response("Result retrieved successfully!", data=result.to_dict())
     return response_obj.return_success_response()
