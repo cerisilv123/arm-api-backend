@@ -1,6 +1,7 @@
 import sys
 import secrets
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -9,6 +10,10 @@ from app.response import Response
 # Creating Flask app
 app = Flask(__name__)
 CORS(app) # Allow for cross-origin requests
+
+# Database
+db = SQLAlchemy()
+DB_NAME = "database.db"
 
 @app.errorhandler(Exception)
 def handle_exception(error):
@@ -44,9 +49,15 @@ def create_app():
         session_key = secrets.token_urlsafe(16)
         app.config["SECRET_KEY"] = f"{session_key}" 
         app.secret_key = session_key 
+        app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
+        db.init_app(app)
 
         # Register API routes and blueprints - FINISH THIS
         from app.views.mining import mining
+
+        from app.models.db_daos import Result, Itemset, Rule, LHS, RHS
+        with app.app_context():
+            db.create_all()
 
         app.register_blueprint(mining, url_prefix='/arm/api')
         

@@ -61,5 +61,5 @@ def mine():
     result = miner.mine_association_rules()
     
     # Returning JSON body with results from request
-    response_obj = Response("Test message response", data=result)
+    response_obj = Response("Data mined successfully!", data=result)
     return response_obj.return_success_response()
