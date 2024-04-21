@@ -119,7 +119,7 @@ def mine():
     response_obj = Response("Data mined successfully!", data=result_obj.to_dict())
     return response_obj.return_success_response()
 
-@mining.route('/result/<string:id>', methods=["GET"])
+@mining.route('/results/<string:id>', methods=["GET"])
 def read_result(id):
 
     # Check if result exists in DB based on id
@@ -131,7 +131,7 @@ def read_result(id):
     response_obj = Response("Result retrieved successfully!", data=result.to_dict())
     return response_obj.return_success_response()
 
-@mining.route('/result/<string:id>', methods=["DELETE"])
+@mining.route('/results/<string:id>', methods=["DELETE"])
 def delete_result(id):
 
     # Check if result exists in DB based on id
@@ -145,3 +145,23 @@ def delete_result(id):
     
     response_obj = Response("Result deleted successfully!")
     return response_obj.return_success_response()
+
+@mining.route('/results', methods=["GET"])
+def read_results():
+    # Retrieve all results
+    results = Result.query.all()
+
+    # Check if results exist in DB
+    if not results:
+        response_obj_err = Response("No results found.")
+        return response_obj_err.return_error_response()
+    
+    # Converting to array or result dict objects
+    results_data = [result.to_dict() for result in results]
+
+    # Prepare the success response including the data
+    response_obj = Response("Results retrieved successfully!", data=results_data)
+    return response_obj.return_success_response()
+
+
+
