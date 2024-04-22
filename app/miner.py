@@ -258,7 +258,7 @@ class Miner:
                 confidence = rule.confidence
                 support = rule.support
                 lift = rule.lift
-                conviction = rule.conviction
+                conviction = 1 if rule.conviction == float('inf') else rule.conviction
 
                 result = {
                     "rule": str(rule), # Rule will be in the format Beer -> Wine. If Beer is bought, then it is likely that Wine is also bought.
@@ -358,7 +358,7 @@ class Miner:
             print(result) // 2.00000000
         """
         if 1 - confidence == 0: 
-            return float('inf') 
+            return 1
         else: 
             return (1 - rhs_support) / (1 - confidence)
     
