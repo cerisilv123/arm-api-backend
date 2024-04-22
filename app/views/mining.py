@@ -54,8 +54,9 @@ def mine():
             return response_obj_err.return_error_response()
     
     # Creating miner object to handle association rule mining
+    algorithm=data["algorithm"]
     miner = Miner(
-        algorithm=data["algorithm"], 
+        algorithm=algorithm, 
         data=data["transactions"], 
         support_threshold=data["support_threshold"],
         confidence_threshold=data["confidence_threshold"],
@@ -74,6 +75,7 @@ def mine():
 
         result = Result(
             count = 10,
+            algorithm = algorithm
         )
         db.session.add(result)
         

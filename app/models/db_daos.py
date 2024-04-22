@@ -9,6 +9,8 @@ class Result(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     count = db.Column(db.Integer, nullable=False, default=1) 
+    algorithm = db.Column(db.String(100), nullable=False)
+    date_added = db.Column(db.String(100), default=lambda: datetime.now(pytz.timezone('Europe/London')).strftime("%d/%m/%Y, %H:%M:%S"), nullable=False)
 
     # Relationships
     itemsets = db.relationship('Itemset', backref='result', lazy=True, cascade="all, delete-orphan")
@@ -24,6 +26,8 @@ class Result(db.Model):
         return {
             'id': self.id, 
             'count': self.count, 
+            'algorithm': self.algorithm, 
+            'date_added': self.date_added,
             'itemsets': itemsets_list, 
             'rules': rules_list,
         }
