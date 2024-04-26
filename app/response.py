@@ -3,7 +3,7 @@ from flask import jsonify
 class Response:
     def __init__(self, message, status_code=200, data=[]):
         """
-        Constructor for initializing the class with a message, data, and an optional status code.
+        Constructor for initialising the class with a message, data, and an optional status code.
         Success responses will always have status code 200 so it is set by default.
 
         Args:

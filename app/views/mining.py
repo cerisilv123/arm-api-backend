@@ -161,7 +161,6 @@ def read_results():
     # Converting to array or result dict objects
     results_data = [result.to_dict() for result in results]
 
-    # Prepare the success response including the data
     response_obj = Response("Results retrieved successfully!", data=results_data)
     return response_obj.return_success_response()
 

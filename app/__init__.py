@@ -38,7 +38,7 @@ def create_app():
         Flask: The Flask application instance.
 
     Raises:
-        Exception: If an error occurs while creating the application, logs the exception using LogSnag and exits the program with status code 1.
+        Exception: If an error occurs while creating the application it exits the program with status code 1.
     """
     try: 
         # 1) Loading envars from .env

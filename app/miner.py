@@ -149,7 +149,7 @@ class Miner:
     
     def mine_apriori_ceri(self):
         """
-        Method to mine association rules using the 'apriori-ceri' algorithm which is a customer class. 
+        Method to mine association rules using the 'apriori-ceri' algorithm which is a custom class. 
         The function utilises the data, support_threshold and confidence threshold class attributes. The method 
         returns a python dictionary containing the itemsets and rule results calculated by 
         the fpgrowth algorithm.
@@ -216,7 +216,6 @@ class Miner:
         elif self.algorithm == 'fpgrowth': 
             new_dict = {}
             for key, value in itemsets.items():
-                # Join the tuple elements with a comma to create a string key instead of tuple which is returned by default by apriori()
                 itemset_key = ','.join(key)
                 new_dict[itemset_key] = value
             itemsets_json_compatible = new_dict

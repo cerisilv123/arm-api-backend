@@ -48,7 +48,7 @@ class AprioriCeri:
         return itemset_count      
 
     """ 
-    Function initialises itemset candidates set (frontier set).
+    Method initialises itemset candidates set (frontier set).
     this function will return the unique items withing a list of transactions. 
     """
     def get_initial_frontier_itemsets_candidates(self, transactions):
@@ -66,7 +66,7 @@ class AprioriCeri:
         return itemsets_candidates
 
     """
-    Function generates new itemset candidates set (Frontier Set) 
+    Method generates new itemset candidates set (Frontier Set) 
     after each pass on the transactions
     """
     def get_frontier_itemsets_candidates(self, itemsets_large):
@@ -83,7 +83,7 @@ class AprioriCeri:
         return new_itemsets_candidates 
 
     """
-    Function generates large itemsets (association rules) based on 
+    Method generates large itemsets (association rules) based on 
     the support threshold
     """
     def get_itemsets_large(self, transactions, minimum_support, frontier_itemsets_candidates):
